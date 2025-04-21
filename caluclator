@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bootstrap Calculator</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #d4edda; /* Light green background */
+        }
+        .calculator {
+            width: 100%;
+            max-width: 350px;
+            margin: 50px auto;
+        }
+        .screen {
+            height: 50px;
+            background-color: #c6721f;
+            font-size: 24px;
+            text-align: right;
+            padding: 10px;
+        }
+        .btn-calc {
+            width: 75px;
+            height: 75px;
+            font-size: 24px;
+        }
+        .btn-primary {
+            background-color: black;
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #333333; /* Darker shade for hover effect */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator card shadow">
+            <div class="card-body">
+                <input type="text" class="form-control screen" id="result" readonly>
+                <div class="row mt-3">
+                    <button class="btn btn-secondary btn-calc" onclick="clearScreen()">C</button>
+                    <button class="btn btn-secondary btn-calc" onclick="deleteLast()">←</button>
+                    <button class="btn btn-secondary btn-calc" onclick="appendToResult('/')">/</button>
+                    <button class="btn btn-secondary btn-calc" onclick="appendToResult('*')">*</button>
+                </div>
+                <div class="row mt-2">
+                    <button class="btn btn-light btn-calc" onclick="appendToResult('7')">7</button>
+                    <button class="btn btn-light btn-calc" onclick="appendToResult('8')">8</button>
+                    <button class="btn btn-light btn-calc" onclick="appendToResult('9')">9</button>
+                    <button class="btn btn-secondary btn-calc" onclick="appendToResult('-')">-</button>
+                </div>
+                <div class="row mt-2">
+                    <button class="btn btn-light btn-calc" onclick="appendToResult('4')">4</button>
+                    <button class="btn btn-light btn-calc" onclick="appendToResult('5')">5</button>
+                    <button class="btn btn-light btn-calc" onclick="appendToResult('6')">6</button>
+                    <button class="btn btn-secondary btn-calc" onclick="appendToResult('+')">+</button>
+                </div>
+                <div class="row mt-2">
+                    <button class="btn btn-light btn-calc" onclick="appendToResult('1')">1</button>
+                    <button class="btn btn-light btn-calc" onclick="appendToResult('2')">2</button>
+                    <button class="btn btn-light btn-calc" onclick="appendToResult('3')">3</button>
+                    <button class="btn btn-primary btn-calc" style="height: 156px;" onclick="calculateResult()">=</button>
+                </div>
+                <div class="row mt-2">
+                    <button class="btn btn-light btn-calc" style="width: 156px;" onclick="appendToResult('0')">0</button>
+                    <button class="btn btn-light btn-calc" onclick="appendToResult('.')">.</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function appendToResult(value) {
+            document.getElementById('result').value += value;
+        }
+
+        function clearScreen() {
+            document.getElementById('result').value = '';
+        }
+
+        function deleteLast() {
+            let current = document.getElementById('result').value;
+            document.getElementById('result').value = current.slice(0, -1);
+        }
+
+        function calculateResult() {
+            try {
+                let result = eval(document.getElementById('result').value);
+                document.getElementById('result').value = result;
+            } catch (e) {
+                document.getElementById('result').value = 'Error';
+            }
+        }
+    </script>
+</body>
+</html>
+
+ 
