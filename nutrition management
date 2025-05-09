@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NutriGuide.AI 🍎</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .chat-container {
+      width: 95%;
+      max-width: 750px;
+      height: 90vh;
+      background: white;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background: linear-gradient(to right, #00b09b, #96c93d);
+      padding: 18px;
+      color: white;
+      font-size: 1.6rem;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .chat-window {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #f0f4f8;
+    }
+
+    .message {
+      display: flex;
+      margin: 12px 0;
+      align-items: flex-end;
+    }
+
+    .bot .bubble {
+      background: #e0f7fa;
+      color: #004d40;
+      margin-right: auto;
+    }
+
+    .user .bubble {
+      background: #4dd0e1;
+      color: white;
+      margin-left: auto;
+    }
+
+    .bubble {
+      padding: 12px 18px;
+      border-radius: 20px;
+      max-width: 75%;
+      word-break: break-word;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+
+    .avatar {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background-size: cover;
+      margin: 0 10px;
+    }
+
+    .user .avatar {
+      background-image: url('https://i.imgur.com/WaJHjaH.png');
+    }
+
+    .bot .avatar {
+      background-image: url('https://i.imgur.com/8RKXAIV.png');
+    }
+
+    .input-container {
+      display: flex;
+      padding: 15px;
+      background: white;
+      border-top: 1px solid #eee;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 14px;
+      font-size: 1rem;
+      border-radius: 30px;
+      border: 1px solid #ccc;
+      outline: none;
+      padding-left: 20px;
+    }
+
+    button {
+      background: linear-gradient(to right, #00b09b, #96c93d);
+      border: none;
+      color: white;
+      padding: 14px 20px;
+      border-radius: 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+    }
+
+    .camera-btn {
+      background: #ffb74d;
+    }
+
+    #imagePreview {
+      max-width: 150px;
+      max-height: 100px;
+      margin-top: 10px;
+      border-radius: 12px;
+    }
+
+    .typing {
+      font-style: italic;
+      font-size: 0.9rem;
+      color: #777;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-container">
+    <div class="chat-header">NutriGuide.AI 🍏 Your Nutrition Companion</div>
+
+    <div class="chat-window" id="chatWindow">
+      <!-- Chat messages appear here -->
+    </div>
+
+    <div class="typing" id="typing" style="display: none;">NutriGuide is typing...</div>
+
+    <div class="input-container">
+      <input type="text" id="userInput" placeholder="Type your question...">
+      <input type="file" id="imageInput" accept="image/*" style="display: none" onchange="previewImage(event)">
+      <button class="camera-btn" onclick="document.getElementById('imageInput').click()">📸 Take Picture</button>
+      <button onclick="sendMessage()">Send</button>
+      <img id="imagePreview" style="display:none" />
+    </div>
+  </div>
+
+  <script>
+    const chatWindow = document.getElementById("chatWindow");
+    const typingIndicator = document.getElementById("typing");
+    const imagePreview = document.getElementById("imagePreview");
+
+    function addMessage(message, sender) {
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message", sender);
+
+      const avatar = document.createElement("div");
+      avatar.classList.add("avatar");
+
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      bubble.textContent = message;
+
+      msgDiv.appendChild(avatar);
+      msgDiv.appendChild(bubble);
+      chatWindow.appendChild(msgDiv);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const inputField = document.getElementById("userInput");
+      const message = inputField.value.trim();
+      const imageFile = document.getElementById("imageInput").files[0];
+
+      if (!message && !imageFile) return;
+
+      if (message) addMessage(message, "user");
+      inputField.value = "";
+
+      typingIndicator.style.display = "block";
+
+      const formData = new FormData();
+      formData.append("message", message);
+      if (imageFile) formData.append("image", imageFile);
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+        typingIndicator.style.display = "none";
+        addMessage(data.reply, "bot");
+        imagePreview.style.display = "none";
+      } catch (error) {
+        typingIndicator.style.display = "none";
+        addMessage("Oops! Something went wrong.", "bot");
+      }
+
+      document.getElementById("imageInput").value = "";
+    }
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          imagePreview.src = reader.result;
+          imagePreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    document.getElementById("userInput").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+
+</body>
+</html>
